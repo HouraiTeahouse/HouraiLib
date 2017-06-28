@@ -1,35 +1,34 @@
-﻿using UnityEngine;
-using System.Collections;
-using Hourai;
+using UnityEngine;
 
-namespace Hourai {
+namespace HouraiTeahouse {
 
+    /// <summary> A NumberText element that changes the color the Text based on a the current number value and a defined
+    /// Gradient. </summary>
     public class GradientNumberText : NumberText {
 
         [SerializeField]
-        private Gradient _gradient;
+        Gradient _gradient;
 
         [SerializeField]
-        private float _start;
+        Range _range;
 
-        [SerializeField]
-        private float _end;
+        /// <summary> The Color gradient used to determine the color of the text. </summary>
+        public Gradient Gradient {
+            get { return _gradient; }
+            set { _gradient = value; }
+        }
 
-        protected override void Update() {
-            base.Update();
-
-            if (_start > _end) {
-                float temp = _start;
-                _start = _end;
-                _end = temp;
+        protected override void UpdateText() {
+            base.UpdateText();
+            if (Text == null)
+                return;
+            if (Gradient == null) {
+                Gradient = new Gradient();
+                Gradient.SetKeys(new[] {new GradientColorKey(Text.color, 0)}, new GradientAlphaKey[] {});
             }
-
-            float point = _start == _end ? 0f : Mathf.Clamp01((Number - _start)/(_end - _start));
-
-            Text.color = _gradient.Evaluate(point);
+            Text.color = _gradient.Evaluate(_range.InverseLerp(Number));
         }
 
     }
 
 }
-
